@@ -39,9 +39,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 關鍵資料
 
-- **原始商家資料**: `src/assets/hakkaconcoin-maps.json` 包含 1350 家客家商家資訊（保持不變）
+- **原始商家資料**: `src/assets/hakkacoin-maps.json` 包含 1350 家客家商家資訊（保持不變）
 - **座標資料**: `src/assets/coordinates.json` 包含商家的經緯度資訊（獨立儲存）
-- **整合資料**: `src/assets/hakkaconcoin-maps-with-coordinates.json` 合併商家資訊與座標（Web App 使用）
+- **整合資料**: `src/assets/hakkacoin-maps-with-coordinates.json` 合併商家資訊與座標（Web App 使用）
 - **資料來源**: https://api.hakkacoin.com.tw/api/v1/store/list
 - **資料結構**: 
   ```typescript
@@ -146,8 +146,8 @@ docs/                    # 專案文件
 - 元件化設計，提升程式碼重複使用性
 - 響應式設計，支援桌面和行動裝置
 - 實作適當的錯誤處理和載入狀態
-- 原始資料檔案（hakkaconcoin-maps.json）保持不變，座標資料獨立儲存
-- 使用整合檔案（hakkaconcoin-maps-with-coordinates.json）供 Web App 使用
+- 原始資料檔案（hakkacoin-maps.json）保持不變，座標資料獨立儲存
+- 使用整合檔案（hakkacoin-maps-with-coordinates.json）供 Web App 使用
 
 ## 工具腳本說明
 
@@ -160,7 +160,7 @@ docs/                    # 專案文件
   - `--force`: 強制更新已有座標的商家
 - **輸出**: 
   - `coordinates.json`: 座標資料
-  - `hakkaconcoin-maps-with-coordinates.json`: 整合檔案
+  - `hakkacoin-maps-with-coordinates.json`: 整合檔案
 
 ### fetch-hakkacoin-data.ts
 - **用途**: 從 Hakkacoin API 同步最新商家資料

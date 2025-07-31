@@ -84,9 +84,9 @@ async function geocodeAddressArcGIS(address: string): Promise<{
 
 // 批次處理函數
 async function processBusinesses(startFrom = 0, batchSize = 100) {
-  const jsonPath = path.join(__dirname, '../src/assets/hakkaconcoin-maps.json')
+  const jsonPath = path.join(__dirname, '../src/assets/hakkacoin-maps.json')
   const coordinatesPath = path.join(__dirname, '../src/assets/coordinates.json')
-  const mergedPath = path.join(__dirname, '../src/assets/hakkaconcoin-maps-with-coordinates.json')
+  const mergedPath = path.join(__dirname, '../src/assets/hakkacoin-maps-with-coordinates.json')
   
   // 讀取原始資料
   const rawData = fs.readFileSync(jsonPath, 'utf-8')

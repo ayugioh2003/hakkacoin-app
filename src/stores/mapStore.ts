@@ -29,10 +29,10 @@ export const useMapStore = defineStore('map', () => {
     
     try {
       // 優先載入有座標的整合檔案，如果不存在則使用原始檔案
-      let response = await fetch('/src/assets/hakkaconcoin-maps-with-coordinates.json')
+      let response = await fetch('/src/assets/hakkacoin-maps-with-coordinates.json')
       if (!response.ok) {
         console.log('整合檔案不存在，使用原始檔案')
-        response = await fetch('/src/assets/hakkaconcoin-maps.json')
+        response = await fetch('/src/assets/hakkacoin-maps.json')
       }
       if (!response.ok) {
         throw new Error(`Failed to load data: ${response.statusText}`)

@@ -71,10 +71,10 @@ async function fetchPage(page: number, pageSize: number): Promise<ApiResponse> {
 
 // 主要函數
 async function fetchAllData(pageSize = 300, shouldMerge = false, maxRecords?: number) {
-  const jsonPath = path.join(__dirname, '../src/assets/hakkaconcoin-maps.json')
-  const backupPath = path.join(__dirname, `../src/assets/hakkaconcoin-maps-backup-${Date.now()}.json`)
+  const jsonPath = path.join(__dirname, '../src/assets/hakkacoin-maps.json')
+  const backupPath = path.join(__dirname, `../src/assets/hakkacoin-maps-backup-${Date.now()}.json`)
   const coordinatesPath = path.join(__dirname, '../src/assets/coordinates.json')
-  const mergedPath = path.join(__dirname, '../src/assets/hakkaconcoin-maps-with-coordinates.json')
+  const mergedPath = path.join(__dirname, '../src/assets/hakkacoin-maps-with-coordinates.json')
   
   console.log('🚀 開始從 Hakkacoin API 取得資料...')
   console.log(`📊 每頁筆數: ${pageSize}`)

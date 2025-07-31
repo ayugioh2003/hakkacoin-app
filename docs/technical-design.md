@@ -93,7 +93,7 @@ src/
 │   ├── mapHelpers.ts
 │   └── searchHelpers.ts
 ├── assets/              # 靜態資源
-│   ├── hakkaconcoin-maps.json
+│   ├── hakkacoin-maps.json
 │   ├── icons/
 │   └── images/
 └── styles/              # 樣式檔案

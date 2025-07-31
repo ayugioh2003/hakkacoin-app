@@ -115,7 +115,7 @@
 - [x] 建立 ArcGIS 地理編碼腳本（geocode-arcgis.ts）
 - [x] 實作批次地址轉座標功能（速率限制 50/分鐘）
 - [x] 建立座標資料獨立儲存機制（coordinates.json）
-- [x] 實作資料合併功能（hakkaconcoin-maps-with-coordinates.json）
+- [x] 實作資料合併功能（hakkacoin-maps-with-coordinates.json）
 - [x] 建立 Hakkacoin API 資料同步腳本（fetch-hakkacoin-data.ts）
 - [x] 實作資料去重與版本控制
 - [x] 移除模擬座標系統（mockCoordinates.ts）
@@ -124,12 +124,12 @@
 - ArcGIS 地理編碼腳本
 - Hakkacoin API 資料同步腳本
 - 座標資料檔案（coordinates.json）
-- 整合資料檔案（hakkaconcoin-maps-with-coordinates.json）
+- 整合資料檔案（hakkacoin-maps-with-coordinates.json）
 
 **驗收標準**:
 - [x] 成功轉換 1350 筆商家地址為真實座標
 - [x] 資料同步腳本可正確取得最新資料
-- [x] 原始資料檔案保持不變（hakkaconcoin-maps.json）
+- [x] 原始資料檔案保持不變（hakkacoin-maps.json）
 - [x] 地圖自動使用含座標的整合檔案
 
 #### 第 6 天：地圖互動優化
@@ -388,7 +388,7 @@
 - [x] 地理編碼腳本（geocode-arcgis.ts）
 - [x] 資料同步腳本（fetch-hakkacoin-data.ts）
 - [x] 座標資料檔案（coordinates.json）
-- [x] 整合資料檔案（hakkaconcoin-maps-with-coordinates.json）
+- [x] 整合資料檔案（hakkacoin-maps-with-coordinates.json）
 
 ## 後續維護建議
 
