@@ -14,6 +14,7 @@
     "fetch-data": "tsx scripts/fetch-hakkacoin-data.ts"
   },
   "dependencies": {
+    "@tailwindcss/forms": "^0.5.10",
     "fuse.js": "^7.1.0",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",

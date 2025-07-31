@@ -1,0 +1,344 @@
+/* Global styles for responsive layout */
+@import "tailwindcss";
+
+/* Base responsive typography */
+@layer base {
+  html {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  @media (max-width: 640px) {
+    html {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+  }
+  
+  body {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Component layer for reusable patterns */
+@layer components {
+  /* Container utilities */
+  .container-responsive {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .container-responsive {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container-responsive {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      max-width: 80rem;
+    }
+  }
+  
+  /* Card component */
+  .card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .card-body {
+      padding: 1.5rem;
+    }
+  }
+  
+  /* Button variants */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: colors 200ms;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+  
+  .btn:focus {
+    outline: 2px solid transparent;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+  
+  .btn-primary {
+    background-color: #2563eb;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .btn-secondary {
+    background-color: #e5e7eb;
+    color: #111827;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #d1d5db;
+  }
+  
+  .btn-outline {
+    border: 1px solid #d1d5db;
+    background-color: white;
+    color: #374151;
+  }
+  
+  .btn-outline:hover {
+    background-color: #f9fafb;
+  }
+  
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  /* Form elements */
+  .form-input {
+    display: block;
+    width: 100%;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+  
+  .form-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6;
+  }
+  
+  .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Layout utilities */
+  .layout-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .layout-grid {
+      gap: 1.5rem;
+    }
+  }
+  
+  .layout-flex {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .layout-flex {
+      flex-direction: row;
+      gap: 1.5rem;
+    }
+  }
+  
+  /* Text utilities */
+  .text-responsive {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  @media (min-width: 768px) {
+    .text-responsive {
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+  }
+  
+  .heading-responsive {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+  }
+  
+  @media (min-width: 768px) {
+    .heading-responsive {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .heading-responsive {
+      font-size: 1.5rem;
+      line-height: 2rem;
+    }
+  }
+}
+
+/* Utility layer for specific tweaks */
+@layer utilities {
+  /* Mobile-first spacing */
+  .space-mobile > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  @media (min-width: 768px) {
+    .space-mobile > * + * {
+      margin-top: 1rem;
+    }
+  }
+  
+  /* Safe area padding for mobile devices */
+  .safe-area-inset {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Scrollable areas */
+  .scrollable {
+    overflow-y: auto;
+  }
+  
+  /* Focus states */
+  .focus-visible-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #3b82f6;
+    border-radius: 0.25rem;
+  }
+  
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+  
+  .animate-bounce-in {
+    animation: bounceIn 0.5s ease-out;
+  }
+  
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+}
+
+/* Keyframe animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break-inside-avoid {
+    break-inside: avoid;
+  }
+  
+  .print-break-after {
+    break-after: page;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .card {
+    @apply border-2 border-gray-900;
+  }
+  
+  .btn {
+    @apply border-2;
+  }
+  
+  .btn-primary {
+    @apply border-blue-700;
+  }
+  
+  .btn-outline {
+    @apply border-gray-900;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .animate-spin {
+    animation: none;
+  }
+}
+
+/* Dark mode preparation (for future implementation) */
+@media (prefers-color-scheme: dark) {
+  /* Will be implemented when dark mode is added */
+}

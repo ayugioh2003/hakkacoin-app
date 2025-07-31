@@ -6,8 +6,10 @@ import { useSearch } from '@/composables/useSearch'
 import { useFilter } from '@/composables/useFilter'
 import MapContainer from '@/components/map/MapContainer.vue'
 import MapControls from '@/components/map/MapControls.vue'
-import SearchBox from '@/components/common/SearchBox.vue'
 import FilterPanel from '@/components/common/FilterPanel.vue'
+import Header from '@/components/layout/Header.vue'
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import ErrorMessage from '@/components/common/ErrorMessage.vue'
 
 // 使用商家資料
 const { businesses, filteredBusinesses, isLoading, error, filteredBusinessCount } = useBusinesses()
@@ -83,51 +85,27 @@ function closeFilterPanel() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <header class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <h1 class="text-2xl font-bold text-gray-900">客家小錢地圖</h1>
-          <div class="flex items-center gap-3">
-            <div class="w-full md:w-96">
-              <SearchBox 
-                v-if="!isLoading"
-                placeholder="搜尋商家名稱或地址..."
-                @search="handleSearch"
-                @select="handleSelectBusiness"
-                @clear="handleClearSearch"
-              />
-            </div>
-            <button
-              v-if="!isLoading"
-              @click="openFilterPanel"
-              class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              篩選
-              <span 
-                v-if="hasActiveFilters && filterCount > 0"
-                class="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"
-              >
-                {{ filterCount }}
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
+  <div class="min-h-screen bg-gray-50 safe-area-inset">
+    <Header 
+      :is-loading="isLoading"
+      @search="handleSearch"
+      @select-business="handleSelectBusiness"
+      @clear-search="handleClearSearch"
+      @open-filter="openFilterPanel"
+    />
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-        <p class="text-red-800">載入資料時發生錯誤：{{ error }}</p>
-      </div>
+    <main class="container-responsive py-4 md:py-8">
+      <ErrorMessage 
+        v-if="error"
+        :message="`載入資料時發生錯誤：${error}`"
+        type="error"
+        class="mb-4"
+      />
 
       <!-- Map Section -->
-      <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-        <div class="p-4 border-b bg-gray-50">
-          <h2 class="text-lg font-semibold text-gray-800">
+      <div class="card mb-4 md:mb-6 overflow-hidden">
+        <div class="card-body !pb-3 border-b bg-gray-50">
+          <h2 class="heading-responsive text-gray-800">
             商家地圖
             <span v-if="!isLoading" class="text-sm font-normal text-gray-600 ml-2">
               (共 {{ filteredBusinessCount }} 家商家)
@@ -145,51 +123,55 @@ function closeFilterPanel() {
             @marker-click="handleMarkerClick"
           />
           <div v-else class="h-[700px] flex items-center justify-center bg-gray-100 rounded">
-            <div class="text-center">
-              <svg class="animate-spin h-8 w-8 mx-auto mb-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <p class="text-gray-600">載入商家資料中...</p>
-            </div>
+            <LoadingSpinner 
+              size="lg"
+              text="載入商家資料中..."
+            />
           </div>
           <MapControls v-if="!isLoading && businesses.length > 0" />
         </div>
       </div>
 
       <!-- Info Section -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-2">地圖功能</h3>
-          <ul class="text-sm text-gray-600 space-y-1">
-            <li>• 滑鼠滾輪或雙擊縮放</li>
-            <li>• 拖曳移動地圖</li>
-            <li>• 點擊標記查看詳情</li>
-          </ul>
-        </div>
-        
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-2">資料狀態</h3>
-          <div class="text-sm text-gray-600">
-            <p>載入狀態：{{ isLoading ? '載入中...' : '已完成' }}</p>
-            <p>商家總數：{{ businesses.length }}</p>
-            <p>顯示數量：{{ filteredBusinessCount }}</p>
+      <div class="layout-grid grid-cols-1 md:grid-cols-3">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="text-base md:text-lg font-medium text-gray-900 mb-2">地圖功能</h3>
+            <ul class="text-responsive text-gray-600 space-y-1">
+              <li>• 滑鼠滾輪或雙擊縮放</li>
+              <li>• 拖曳移動地圖</li>
+              <li>• 點擊標記查看詳情</li>
+            </ul>
           </div>
         </div>
         
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-2">開發進度</h3>
-          <div class="text-sm text-gray-600">
-            <p>✅ 環境建置完成</p>
-            <p>✅ 資料模型完成</p>
-            <p>✅ 基礎地圖完成</p>
-            <p>✅ 商家標記完成</p>
-            <p>✅ 地理編碼完成</p>
-            <p>✅ 地圖互動優化</p>
-            <p>✅ 搜尋功能開發</p>
-            <p>✅ 搜尋體驗優化</p>
-            <p>✅ 篩選基礎功能</p>
-            <p>✅ 篩選體驗優化 (Day 10)</p>
+        <div class="card">
+          <div class="card-body">
+            <h3 class="text-base md:text-lg font-medium text-gray-900 mb-2">資料狀態</h3>
+            <div class="text-responsive text-gray-600 space-mobile">
+              <p>載入狀態：{{ isLoading ? '載入中...' : '已完成' }}</p>
+              <p>商家總數：{{ businesses.length }}</p>
+              <p>顯示數量：{{ filteredBusinessCount }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-body">
+            <h3 class="text-base md:text-lg font-medium text-gray-900 mb-2">開發進度</h3>
+            <div class="text-responsive text-gray-600 space-mobile">
+              <p>✅ 環境建置完成</p>
+              <p>✅ 資料模型完成</p>
+              <p>✅ 基礎地圖完成</p>
+              <p>✅ 商家標記完成</p>
+              <p>✅ 地理編碼完成</p>
+              <p>✅ 地圖互動優化</p>
+              <p>✅ 搜尋功能開發</p>
+              <p>✅ 搜尋體驗優化</p>
+              <p>✅ 篩選基礎功能</p>
+              <p>✅ 篩選體驗優化 (Day 10)</p>
+              <p>🔄 介面設計與佈局 (Day 11)</p>
+            </div>
           </div>
         </div>
       </div>

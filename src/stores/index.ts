@@ -19,13 +19,10 @@ export async function initializeStores() {
     // 初始化搜尋引擎
     searchStore.initializeSearchEngine(mapStore.businesses)
 
-    // 初始化篩選選項
-    filterStore.initializeFilters(mapStore.businesses)
-
     console.log('✅ Stores initialized successfully')
     console.log(`📊 Loaded ${mapStore.businessCount} businesses`)
-    console.log(`🏙️ Available counties: ${filterStore.availableCounties.length}`)
-    console.log(`🏷️ Available tags: ${filterStore.availableTags.length}`)
+    console.log(`🏙️ Available counties: ${filterStore.getAvailableCounties(mapStore.businesses).length}`)
+    console.log(`🏷️ Available tags: ${filterStore.getAvailableTags(mapStore.businesses).length}`)
   } else {
     console.error('❌ Failed to initialize stores: No businesses loaded')
   }

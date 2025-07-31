@@ -22,6 +22,9 @@ const emit = defineEmits<{
   clear: []
 }>()
 
+const windowSetTimeout = window.setTimeout
+const windowClearTimeout = window.clearTimeout
+
 // Store and composables
 const searchStore = useSearchStore()
 const { businesses } = useBusinesses()
@@ -54,6 +57,12 @@ const searchResults = computed(() => {
 })
 
 // Methods
+function handleBlur() {
+  windowSetTimeout(() => {
+    isFocused.value = false
+  }, 200)
+}
+
 function handleSearch() {
   const query = searchInput.value.trim()
   if (query) {
@@ -123,14 +132,14 @@ watch(searchInput, (newValue) => {
   selectedIndex.value = -1
   
   if (searchTimeout) {
-    clearTimeout(searchTimeout)
+    windowClearTimeout(searchTimeout)
   }
   
   // Update query and generate suggestions immediately
   searchStore.updateQuery(newValue, businesses.value)
   
   // Debounce search
-  searchTimeout = window.setTimeout(() => {
+  searchTimeout = windowSetTimeout(() => {
     handleSearch()
   }, 300)
 })
@@ -164,7 +173,7 @@ onMounted(() => {
                placeholder-gray-400 text-gray-900"
         :placeholder="placeholder"
         @focus="isFocused = true"
-        @blur="() => setTimeout(() => isFocused = false, 200)"
+        @blur="handleBlur"
         @keydown="handleKeydown"
         :aria-label="placeholder"
         aria-autocomplete="list"
