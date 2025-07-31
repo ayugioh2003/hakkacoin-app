@@ -4,6 +4,7 @@ import type { Map } from 'leaflet'
 import type { Business, BusinessData, MapState } from '@/types'
 import { parseBusinessData, validateBusinessData } from '@/utils/dataParser'
 import { TAIWAN_CENTER, DEFAULT_ZOOM } from '@/utils/mapHelpers'
+import { addMockCoordinatesToBusinesses } from '@/utils/mockCoordinates'
 
 export const useMapStore = defineStore('map', () => {
   // State
@@ -39,7 +40,9 @@ export const useMapStore = defineStore('map', () => {
         throw new Error('Invalid business data format')
       }
       
-      businesses.value = parseBusinessData(data as BusinessData)
+      const parsedBusinesses = parseBusinessData(data as BusinessData)
+      // 暫時添加模擬座標（之後會實作真實的地理編碼）
+      businesses.value = addMockCoordinatesToBusinesses(parsedBusinesses)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error occurred'
       console.error('Error loading business data:', err)

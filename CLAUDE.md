@@ -106,6 +106,11 @@ docs/                    # 專案文件
 - 地圖顯示功能（MapContainer 元件）
 - 地圖控制元件（MapControls）
 - Leaflet.js 整合與 OpenStreetMap 瓦片圖層
+- 商家標記功能（自訂圖示、點擊事件）
+- MarkerPopup 元件（彈出視窗）
+- Marker Clustering（標記群集）
+- Google Maps 整合（地址跳轉）
+- 模擬座標系統（mockCoordinates）
 
 ## 效能考量
 

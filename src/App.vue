@@ -1,21 +1,45 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch, ref } from 'vue'
 import { initializeStores } from '@/stores'
 import { useBusinesses } from '@/composables/useBusinesses'
 import MapContainer from '@/components/map/MapContainer.vue'
 import MapControls from '@/components/map/MapControls.vue'
 
-// 初始化 stores
-onMounted(async () => {
-  await initializeStores()
-})
-
 // 使用商家資料
 const { businesses, isLoading, error, filteredBusinessCount } = useBusinesses()
+
+// 手動追蹤初始化狀態
+const isInitialized = ref(false)
+
+// 初始化 stores
+onMounted(async () => {
+  console.log('Starting initialization...')
+  await initializeStores()
+  isInitialized.value = true
+  console.log('Initialization complete')
+  console.log('Current businesses:', businesses.value?.length || 0)
+})
+
+// 監聽商家資料載入
+watch(businesses, (newBusinesses) => {
+  if (newBusinesses && newBusinesses.length > 0) {
+    console.log(`Businesses loaded in App.vue: ${newBusinesses.length}`)
+    const businessWithCoordinates = newBusinesses.filter(b => b.coordinates).length
+    console.log(`Businesses with coordinates: ${businessWithCoordinates}`)
+  }
+}, { immediate: true })
 
 // Map event handlers
 function handleMapReady() {
   console.log('Map is ready!')
+  if (businesses.value) {
+    console.log('Businesses loaded:', businesses.value.length)
+    if (businesses.value.length > 0) {
+      console.log('Sample business:', businesses.value[0])
+    }
+  } else {
+    console.log('Businesses not loaded yet')
+  }
 }
 
 function handleMarkerClick(business: any) {
@@ -49,12 +73,22 @@ function handleMarkerClick(business: any) {
         
         <div class="relative">
           <MapContainer 
+            v-if="!isLoading && businesses.length > 0"
             :businesses="businesses"
             height="500px"
             @map-ready="handleMapReady"
             @marker-click="handleMarkerClick"
           />
-          <MapControls />
+          <div v-else class="h-[500px] flex items-center justify-center bg-gray-100 rounded">
+            <div class="text-center">
+              <svg class="animate-spin h-8 w-8 mx-auto mb-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="text-gray-600">載入商家資料中...</p>
+            </div>
+          </div>
+          <MapControls v-if="!isLoading && businesses.length > 0" />
         </div>
       </div>
 

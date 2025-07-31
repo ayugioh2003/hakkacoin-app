@@ -79,7 +79,7 @@ export function useBusinesses() {
 
   return {
     // 商家資料
-    businesses: mapStore.businesses,
+    businesses: computed(() => mapStore.businesses),
     filteredBusinesses,
     selectedBusiness: computed(() => mapStore.selectedBusiness),
     
