@@ -4,7 +4,6 @@ import type { Map } from 'leaflet'
 import type { Business, BusinessData, MapState } from '@/types'
 import { parseBusinessData, validateBusinessData } from '@/utils/dataParser'
 import { TAIWAN_CENTER, DEFAULT_ZOOM } from '@/utils/mapHelpers'
-import { addMockCoordinatesToBusinesses } from '@/utils/mockCoordinates'
 
 export const useMapStore = defineStore('map', () => {
   // State
@@ -29,7 +28,12 @@ export const useMapStore = defineStore('map', () => {
     error.value = null
     
     try {
-      const response = await fetch('/src/assets/hakkaconcoin-maps.json')
+      // 優先載入有座標的整合檔案，如果不存在則使用原始檔案
+      let response = await fetch('/src/assets/hakkaconcoin-maps-with-coordinates.json')
+      if (!response.ok) {
+        console.log('整合檔案不存在，使用原始檔案')
+        response = await fetch('/src/assets/hakkaconcoin-maps.json')
+      }
       if (!response.ok) {
         throw new Error(`Failed to load data: ${response.statusText}`)
       }
@@ -40,9 +44,7 @@ export const useMapStore = defineStore('map', () => {
         throw new Error('Invalid business data format')
       }
       
-      const parsedBusinesses = parseBusinessData(data as BusinessData)
-      // 暫時添加模擬座標（之後會實作真實的地理編碼）
-      businesses.value = addMockCoordinatesToBusinesses(parsedBusinesses)
+      businesses.value = parseBusinessData(data as BusinessData)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error occurred'
       console.error('Error loading business data:', err)

@@ -14,6 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **程式碼檢查**: `pnpm lint`
 - **類型檢查**: `pnpm type-check`
 - **格式化程式碼**: `pnpm format`
+- **地理編碼**: `pnpm geocode` (執行 ArcGIS 地址轉座標)
+- **資料同步**: `pnpm fetch-data` (從 Hakkacoin API 取得最新資料)
 
 專案使用 pnpm 作為套件管理器 (版本 9.5.0+)。
 
@@ -37,7 +39,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 關鍵資料
 
-- **商家資料**: `src/assets/hakkaconcoin-maps.json` 包含 1350 家客家商家資訊
+- **原始商家資料**: `src/assets/hakkaconcoin-maps.json` 包含 1350 家客家商家資訊（保持不變）
+- **座標資料**: `src/assets/coordinates.json` 包含商家的經緯度資訊（獨立儲存）
+- **整合資料**: `src/assets/hakkaconcoin-maps-with-coordinates.json` 合併商家資訊與座標（Web App 使用）
+- **資料來源**: https://api.hakkacoin.com.tw/api/v1/store/list
 - **資料結構**: 
   ```typescript
   interface Business {
@@ -53,6 +58,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     classification: string
     is_hakka: boolean
     website: string | null
+    coordinates?: [number, number]  // 經緯度（透過 ArcGIS 地理編碼取得）
+    geocodeInfo?: {                 // 地理編碼資訊
+      matchedAddress?: string
+      score?: number
+      locationType?: string
+      processedAt?: string
+    }
   }
   ```
 
@@ -64,12 +76,15 @@ src/
 │   ├── common/          # 共用元件 (SearchBox, FilterPanel, LoadingSpinner)
 │   ├── map/             # 地圖相關元件 (MapContainer, MarkerPopup, MapControls)
 │   └── layout/          # 佈局元件 (Header, Sidebar, Footer)
-├── composables/         # 組合式函數 (useMap, useSearch, useFilter)
+├── composables/         # 組合式函數 (useMap, useSearch, useFilter, useBusinesses)
 ├── stores/              # Pinia stores (mapStore, searchStore, filterStore)
 ├── types/               # TypeScript 類型定義
 ├── utils/               # 工具函數 (dataParser, mapHelpers, searchHelpers)
 ├── assets/              # 靜態資源和資料
 └── styles/              # 樣式檔案
+scripts/                 # 工具腳本
+├── geocode-arcgis.ts    # ArcGIS 地理編碼腳本
+└── fetch-hakkacoin-data.ts # Hakkacoin API 資料同步腳本
 docs/                    # 專案文件
 ```
 
@@ -91,16 +106,18 @@ docs/                    # 專案文件
 
 ### 開發階段
 - **第 1-2 天**: 環境建置與基礎架構 ✅
-- **第 3-5 天**: 地圖核心功能開發
-- **第 6-7 天**: 搜尋功能開發
-- **第 8-9 天**: 篩選功能開發
-- **第 10-11 天**: UI/UX 優化
-- **第 12 天**: 測試與部署準備
+- **第 3-4 天**: 地圖核心功能開發 ✅
+- **第 5 天**: 地理編碼與資料管理 ✅
+- **第 6 天**: 地圖互動優化
+- **第 7-8 天**: 搜尋功能開發
+- **第 9-10 天**: 篩選功能開發
+- **第 11-12 天**: UI/UX 優化
+- **第 13 天**: 測試與部署準備
 
 ### 已完成功能
 - TypeScript 開發環境配置
 - Pinia stores 架構（mapStore, searchStore, filterStore）
-- 商家資料載入機制
+- 商家資料載入機制（優先使用含座標的整合檔案）
 - 資料解析與處理工具
 - 基礎 composables（useBusinesses, useMap）
 - 地圖顯示功能（MapContainer 元件）
@@ -108,16 +125,19 @@ docs/                    # 專案文件
 - Leaflet.js 整合與 OpenStreetMap 瓦片圖層
 - 商家標記功能（自訂圖示、點擊事件）
 - MarkerPopup 元件（彈出視窗）
-- Marker Clustering（標記群集）
+- Marker Clustering（標記群集，已修復動畫錯誤）
 - Google Maps 整合（地址跳轉）
-- 模擬座標系統（mockCoordinates）
+- ArcGIS 地理編碼功能（批次地址轉座標）
+- Hakkacoin API 資料同步功能
+- 資料版本控制與去重機制
 
 ## 效能考量
 
-- 使用 Marker Clustering 處理大量商家標記
+- 使用 Marker Clustering 處理大量商家標記（禁用動畫以避免錯誤）
 - 實作搜尋防抖機制 (300ms)
 - 圖片懶載入和預載入
 - 虛擬化處理可視範圍內的標記
+- 地理編碼速率限制（50 請求/分鐘）
 
 ## 開發注意事項
 
@@ -126,3 +146,27 @@ docs/                    # 專案文件
 - 元件化設計，提升程式碼重複使用性
 - 響應式設計，支援桌面和行動裝置
 - 實作適當的錯誤處理和載入狀態
+- 原始資料檔案（hakkaconcoin-maps.json）保持不變，座標資料獨立儲存
+- 使用整合檔案（hakkaconcoin-maps-with-coordinates.json）供 Web App 使用
+
+## 工具腳本說明
+
+### geocode-arcgis.ts
+- **用途**: 批次將商家地址轉換為經緯度座標
+- **執行**: `pnpm geocode`
+- **參數**:
+  - `--start <number>`: 從指定索引開始處理
+  - `--batch <number>`: 每批處理的筆數（預設 100）
+  - `--force`: 強制更新已有座標的商家
+- **輸出**: 
+  - `coordinates.json`: 座標資料
+  - `hakkaconcoin-maps-with-coordinates.json`: 整合檔案
+
+### fetch-hakkacoin-data.ts
+- **用途**: 從 Hakkacoin API 同步最新商家資料
+- **執行**: `pnpm fetch-data`
+- **參數**:
+  - `--page-size <number>`: 每頁筆數（預設 300）
+  - `--merge`: 合併現有座標資料
+  - `--max <number>`: 限制最大筆數（預設無限制）
+- **功能**: 自動去重、版本控制、備份原始檔案
