@@ -38,13 +38,13 @@
 **目標**: 建立資料處理基礎設施
 
 **具體任務**:
-- [ ] 定義 TypeScript 類型介面（Business, Filter, Search 等）
-- [ ] 建立資料解析器（dataParser.ts）
-- [ ] 實作地址解析為縣市的邏輯
-- [ ] 建立地圖工具函數（mapHelpers.ts）
-- [ ] 建立搜尋工具函數（searchHelpers.ts）
-- [ ] 設定 Pinia stores 基本結構
-- [ ] 建立 JSON 資料載入機制
+- [x] 定義 TypeScript 類型介面（Business, Filter, Search 等）
+- [x] 建立資料解析器（dataParser.ts）
+- [x] 實作地址解析為縣市的邏輯
+- [x] 建立地圖工具函數（mapHelpers.ts）
+- [x] 建立搜尋工具函數（searchHelpers.ts）
+- [x] 設定 Pinia stores 基本結構
+- [x] 建立 JSON 資料載入機制
 
 **產出物**:
 - 完整的類型定義檔案
