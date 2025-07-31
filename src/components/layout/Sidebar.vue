@@ -152,7 +152,7 @@ function setActiveTab(tab: 'search' | 'filter' | 'info') {
         <!-- Info Tab -->
         <div v-if="activeTab === 'info'" class="space-y-4">
           <div class="text-sm text-gray-600 space-y-2">
-            <h3 class="font-medium text-gray-900">關於客家小錢地圖</h3>
+            <h3 class="font-medium text-gray-900">關於客家幣地圖</h3>
             <p>這是一個展示台灣客家商家的互動式地圖應用程式。</p>
             
             <h4 class="font-medium text-gray-900 mt-4">功能特色</h4>

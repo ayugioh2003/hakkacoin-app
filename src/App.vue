@@ -10,6 +10,11 @@ import FilterPanel from '@/components/common/FilterPanel.vue'
 import Header from '@/components/layout/Header.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import ErrorMessage from '@/components/common/ErrorMessage.vue'
+import TransitionWrapper from '@/components/common/TransitionWrapper.vue'
+import UserGuide from '@/components/common/UserGuide.vue'
+import { useTransitions } from '@/composables/useTransitions'
+import { useKeyboardNavigation } from '@/composables/useKeyboardNavigation'
+import { useAccessibility } from '@/composables/useAccessibility'
 
 // 使用商家資料
 const { businesses, filteredBusinesses, isLoading, error, filteredBusinessCount } = useBusinesses()
@@ -19,6 +24,15 @@ const { performSearch, clearSearch, selectBusiness, focusOnResults, highlightedB
 
 // 使用篩選功能
 const { hasActiveFilters, filterCount } = useFilter()
+
+// 使用過渡動畫
+const { searchFilterTransition, loadingTransition, pageTransition } = useTransitions()
+
+// 使用鍵盤導航
+const { setupScopedNavigation } = useKeyboardNavigation()
+
+// 使用無障礙功能
+const { announceToScreenReader, enhanceAriaLabels } = useAccessibility()
 
 // 手動追蹤初始化狀態
 const isInitialized = ref(false)
@@ -63,7 +77,9 @@ function handleMarkerClick(business: any) {
 
 // Search event handlers
 function handleSearch(query: string) {
+  searchFilterTransition('search')
   focusOnResults()
+  announceToScreenReader(`正在搜尋「${query}」`, 'polite')
 }
 
 function handleSelectBusiness(business: any) {
@@ -71,21 +87,34 @@ function handleSelectBusiness(business: any) {
 }
 
 function handleClearSearch() {
+  searchFilterTransition('none')
   clearSearch()
 }
 
 // Filter event handlers
 function openFilterPanel() {
+  searchFilterTransition('filter')
   isFilterPanelOpen.value = true
+  announceToScreenReader('篩選面板已開啟', 'polite')
 }
 
 function closeFilterPanel() {
+  searchFilterTransition('none')
   isFilterPanelOpen.value = false
+  announceToScreenReader('篩選面板已關閉', 'polite')
 }
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50 safe-area-inset">
+    <!-- Skip to content link for accessibility -->
+    <a 
+      href="#main-content" 
+      class="absolute left-[-9999px] top-0 z-[999] px-4 py-2 bg-gray-900 text-white no-underline rounded-br-lg focus:left-0"
+    >
+      跳到主要內容
+    </a>
+    
     <Header 
       :is-loading="isLoading"
       @search="handleSearch"
@@ -94,16 +123,19 @@ function closeFilterPanel() {
       @open-filter="openFilterPanel"
     />
 
-    <main class="container-responsive py-4 md:py-8">
-      <ErrorMessage 
-        v-if="error"
-        :message="`載入資料時發生錯誤：${error}`"
-        type="error"
-        class="mb-4"
-      />
+    <main id="main-content" class="container-responsive py-4 md:py-8" role="main">
+      <TransitionWrapper name="slide-down" :appear="true">
+        <ErrorMessage 
+          v-if="error"
+          :message="`載入資料時發生錯誤：${error}`"
+          type="error"
+          class="mb-4"
+        />
+      </TransitionWrapper>
 
       <!-- Map Section -->
-      <div class="card mb-4 md:mb-6 overflow-hidden">
+      <TransitionWrapper name="slide-up" :appear="true">
+        <div class="card mb-4 md:mb-6 overflow-hidden">
         <div class="card-body !pb-3 border-b bg-gray-50">
           <h2 class="heading-responsive text-gray-800">
             商家地圖
@@ -116,6 +148,7 @@ function closeFilterPanel() {
         <div class="relative">
           <MapContainer 
             v-if="!isLoading && businesses.length > 0"
+            id="map"
             :businesses="filteredBusinesses"
             :highlighted-business-ids="highlightedBusinessIds"
             height="700px"
@@ -128,12 +161,17 @@ function closeFilterPanel() {
               text="載入商家資料中..."
             />
           </div>
-          <MapControls v-if="!isLoading && businesses.length > 0" />
+          <MapControls 
+            v-if="!isLoading && businesses.length > 0" 
+            :is-filter-panel-open="isFilterPanelOpen"
+          />
         </div>
-      </div>
+        </div>
+      </TransitionWrapper>
 
       <!-- Info Section -->
-      <div class="layout-grid grid-cols-1 md:grid-cols-3">
+      <TransitionWrapper name="fade" :appear="true" :duration="{ enter: 600, leave: 300 }">
+        <div class="layout-grid grid-cols-1 md:grid-cols-3">
         <div class="card">
           <div class="card-body">
             <h3 class="text-base md:text-lg font-medium text-gray-900 mb-2">地圖功能</h3>
@@ -170,17 +208,26 @@ function closeFilterPanel() {
               <p>✅ 搜尋體驗優化</p>
               <p>✅ 篩選基礎功能</p>
               <p>✅ 篩選體驗優化 (Day 10)</p>
-              <p>🔄 介面設計與佈局 (Day 11)</p>
+              <p>✅ 介面設計與佈局 (Day 11)</p>
+              <p>✅ 互動體驗優化 (Day 12)</p>
+              <p>⏳ 測試與部署準備 (Day 13)</p>
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </TransitionWrapper>
     </main>
 
     <!-- Filter Panel -->
     <FilterPanel 
       :is-open="isFilterPanelOpen"
       @close="closeFilterPanel"
+    />
+
+    <!-- User Guide -->
+    <UserGuide 
+      :show-on-first-visit="true"
+      @complete="() => announceToScreenReader('使用指南已完成', 'polite')"
     />
   </div>
 </template>

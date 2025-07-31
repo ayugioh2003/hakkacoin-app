@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useFilter } from '@/composables/useFilter'
+import TransitionWrapper from './TransitionWrapper.vue'
+import { useTouchEnhancement } from '@/composables/useTouchEnhancement'
 
 // Props
 interface Props {
@@ -95,22 +97,49 @@ function handleClearWithAnimation(clearFunction: () => void) {
     isCollapsing.value = false
   }, 200)
 }
+
+// 觸控增強
+const { addTouchFeedback, optimizeButtonTouch, addGestureRecognition } = useTouchEnhancement()
+
+onMounted(() => {
+  // 為所有按鈕添加觸控優化
+  const buttons = document.querySelectorAll('.filter-option, .section-tab, .clear-button')
+  buttons.forEach(button => {
+    if (button instanceof HTMLElement) {
+      optimizeButtonTouch(button)
+    }
+  })
+
+  // 為面板添加手勢識別
+  const panel = document.querySelector('.filter-panel')
+  if (panel instanceof HTMLElement) {
+    addGestureRecognition(panel, {
+      onSwipeRight: handleClose,
+      onSwipeLeft: () => {
+        // 可以添加其他手勢邏輯
+      }
+    })
+  }
+})
 </script>
 
 <template>
   <div>
     <!-- Mobile backdrop overlay -->
-    <div 
-      v-if="isOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 md:hidden z-40"
-      @click="handleClose"
-    ></div>
+    <TransitionWrapper name="fade" :appear="false">
+      <div 
+        v-if="isOpen"
+        class="fixed inset-0 bg-black bg-opacity-50 md:hidden z-[99998]"
+        @click="handleClose"
+      ></div>
+    </TransitionWrapper>
     
     <!-- Fixed positioned panel that slides from right -->
-    <div 
-      class="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out"
-      :class="isOpen ? 'translate-x-0' : 'translate-x-full'"
-    >
+    <TransitionWrapper name="slide" :appear="false">
+      <div 
+        v-if="isOpen"
+        class="filter-panel fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-[99999]"
+      >
       <div class="flex h-full flex-col">
         <!-- Header -->
         <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
@@ -312,7 +341,8 @@ function handleClearWithAnimation(clearFunction: () => void) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </TransitionWrapper>
   </div>
 </template>
 

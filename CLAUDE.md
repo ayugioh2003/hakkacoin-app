@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 專案概述
 
-這是一個客家小錢地圖 Web App，基於 Vue 3 + Vite 的互動式地圖應用程式。該應用程式使用開源地圖方案展示台灣各地的客家商家，並提供搜尋、篩選和導航功能。
+這是一個客家幣地圖 Web App，基於 Vue 3 + Vite 的互動式地圖應用程式。該應用程式使用開源地圖方案展示台灣各地的客家商家，並提供搜尋、篩選和導航功能。
 
 ## 開發指令
 
@@ -164,6 +164,17 @@ docs/                    # 專案文件
   - Tailwind CSS 擴展配置（客家色彩主題、自訂動畫）
   - 行動裝置優化（safe-area 支援、響應式設計）
   - 無障礙支援改進（focus-visible-ring、適當的 ARIA 標籤）
+- **互動體驗優化**（Day 12 完成）:
+  - TransitionWrapper.vue 元件（支援 fade、slide、scale、bounce、elastic 動畫）
+  - useTransitions composable（協調元件間動畫，管理過渡狀態）
+  - useTouchEnhancement composable（觸控手勢：swipe、pinch、long press）
+  - useKeyboardNavigation composable（Tab 導航、方向鍵、快捷鍵支援）
+  - useAccessibility composable（螢幕閱讀器、高對比模式、字體大小調整）
+  - usePerformanceOptimization composable（懶載入、虛擬滾動、效能監控）
+  - UserGuide.vue 元件（互動式使用指南，智慧提示視窗定位）
+  - 修復專案名稱（客家小錢 → 客家幣）
+  - 修復篩選面板層級問題（z-index 調整）
+  - 修復地圖控制按鈕被遮擋問題（動態位置調整）
 
 ## 效能考量
 

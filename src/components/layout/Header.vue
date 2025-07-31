@@ -11,7 +11,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   isLoading: false,
-  title: '客家小錢地圖'
+  title: '客家幣地圖'
 })
 
 // Emits

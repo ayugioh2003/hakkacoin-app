@@ -1,7 +1,24 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useMapStore } from '@/stores/mapStore'
+import { useFilterStore } from '@/stores/filterStore'
 
 const mapStore = useMapStore()
+const filterStore = useFilterStore()
+
+// Props
+interface Props {
+  isFilterPanelOpen?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isFilterPanelOpen: false
+})
+
+// Computed
+const controlsPosition = computed(() => {
+  return props.isFilterPanelOpen ? 'left-4' : 'right-4'
+})
 
 // Emit events
 const emit = defineEmits<{
@@ -48,7 +65,10 @@ function handleLocate() {
 </script>
 
 <template>
-  <div class="map-controls absolute top-4 right-4 z-10 flex flex-col gap-2">
+  <div 
+    class="map-controls absolute top-4 z-10 flex flex-col gap-2 transition-all duration-300"
+    :class="controlsPosition"
+  >
     <!-- Zoom controls -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
       <!-- Zoom in -->
