@@ -74,7 +74,7 @@ export function useBusinesses() {
   // 重置所有篩選和搜尋
   function resetAllFilters() {
     searchStore.clearSearch()
-    filterStore.clearFilters()
+    filterStore.clearAllFilters()
   }
 
   return {

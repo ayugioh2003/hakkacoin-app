@@ -3,18 +3,26 @@ import { onMounted, watch, ref } from 'vue'
 import { initializeStores } from '@/stores'
 import { useBusinesses } from '@/composables/useBusinesses'
 import { useSearch } from '@/composables/useSearch'
+import { useFilter } from '@/composables/useFilter'
 import MapContainer from '@/components/map/MapContainer.vue'
 import MapControls from '@/components/map/MapControls.vue'
 import SearchBox from '@/components/common/SearchBox.vue'
+import FilterPanel from '@/components/common/FilterPanel.vue'
 
 // 使用商家資料
-const { businesses, isLoading, error, filteredBusinessCount } = useBusinesses()
+const { businesses, filteredBusinesses, isLoading, error, filteredBusinessCount } = useBusinesses()
 
 // 使用搜尋功能
 const { performSearch, clearSearch, selectBusiness, focusOnResults, highlightedBusinessIds } = useSearch()
 
+// 使用篩選功能
+const { hasActiveFilters, filterCount } = useFilter()
+
 // 手動追蹤初始化狀態
 const isInitialized = ref(false)
+
+// 篩選面板狀態
+const isFilterPanelOpen = ref(false)
 
 // 初始化 stores
 onMounted(async () => {
@@ -63,6 +71,15 @@ function handleSelectBusiness(business: any) {
 function handleClearSearch() {
   clearSearch()
 }
+
+// Filter event handlers
+function openFilterPanel() {
+  isFilterPanelOpen.value = true
+}
+
+function closeFilterPanel() {
+  isFilterPanelOpen.value = false
+}
 </script>
 
 <template>
@@ -71,14 +88,32 @@ function handleClearSearch() {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h1 class="text-2xl font-bold text-gray-900">客家小錢地圖</h1>
-          <div class="w-full md:w-96">
-            <SearchBox 
+          <div class="flex items-center gap-3">
+            <div class="w-full md:w-96">
+              <SearchBox 
+                v-if="!isLoading"
+                placeholder="搜尋商家名稱或地址..."
+                @search="handleSearch"
+                @select="handleSelectBusiness"
+                @clear="handleClearSearch"
+              />
+            </div>
+            <button
               v-if="!isLoading"
-              placeholder="搜尋商家名稱或地址..."
-              @search="handleSearch"
-              @select="handleSelectBusiness"
-              @clear="handleClearSearch"
-            />
+              @click="openFilterPanel"
+              class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              篩選
+              <span 
+                v-if="hasActiveFilters && filterCount > 0"
+                class="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"
+              >
+                {{ filterCount }}
+              </span>
+            </button>
           </div>
         </div>
       </div>
@@ -103,7 +138,7 @@ function handleClearSearch() {
         <div class="relative">
           <MapContainer 
             v-if="!isLoading && businesses.length > 0"
-            :businesses="businesses"
+            :businesses="filteredBusinesses"
             :highlighted-business-ids="highlightedBusinessIds"
             height="700px"
             @map-ready="handleMapReady"
@@ -152,10 +187,17 @@ function handleClearSearch() {
             <p>✅ 地理編碼完成</p>
             <p>✅ 地圖互動優化</p>
             <p>✅ 搜尋功能開發</p>
-            <p>✅ 搜尋體驗優化 (Day 8)</p>
+            <p>✅ 搜尋體驗優化</p>
+            <p>✅ 篩選基礎功能 (Day 9)</p>
           </div>
         </div>
       </div>
     </main>
+
+    <!-- Filter Panel -->
+    <FilterPanel 
+      :is-open="isFilterPanelOpen"
+      @close="closeFilterPanel"
+    />
   </div>
 </template>
