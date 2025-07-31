@@ -118,7 +118,9 @@ function handleMarkerClick(business: any) {
             <p>✅ 環境建置完成</p>
             <p>✅ 資料模型完成</p>
             <p>✅ 基礎地圖完成</p>
-            <p>⏳ 商家標記 (Day 4)</p>
+            <p>✅ 商家標記完成</p>
+            <p>✅ 地理編碼完成</p>
+            <p>✅ 地圖互動優化 (Day 6)</p>
           </div>
         </div>
       </div>

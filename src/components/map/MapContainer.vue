@@ -33,37 +33,66 @@ const mapStore = useMapStore()
 const mapContainer = ref<HTMLDivElement>()
 const map = ref<L.Map | null>(null)
 const markerClusterGroup = ref<L.MarkerClusterGroup | null>(null)
+const mapError = ref<string | null>(null)
+const isMapReady = ref(false)
 
 // Initialize map
 function initializeMap() {
   if (!mapContainer.value) return
 
-  // Create map instance
-  map.value = L.map(mapContainer.value, {
-    center: TAIWAN_CENTER,
-    zoom: DEFAULT_ZOOM,
-    zoomControl: true,
-    attributionControl: true,
-    preferCanvas: true,
-    zoomAnimation: false, // 暫時禁用縮放動畫
-    fadeAnimation: true,
-    markerZoomAnimation: false // 暫時禁用標記縮放動畫
-  })
+  try {
+    // Create map instance
+    map.value = L.map(mapContainer.value, {
+      center: TAIWAN_CENTER,
+      zoom: DEFAULT_ZOOM,
+      zoomControl: true,
+      attributionControl: true,
+      preferCanvas: true,
+      zoomAnimation: false, // 暫時禁用縮放動畫
+      fadeAnimation: true,
+      markerZoomAnimation: false // 暫時禁用標記縮放動畫
+    })
 
-  // Add OpenStreetMap tile layer
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 19,
-    minZoom: 7
-  }).addTo(map.value as L.Map)
+    // Add OpenStreetMap tile layer
+    const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+      minZoom: 7,
+      errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+    })
 
-  // Store map instance
-  mapStore.setMap(map.value as L.Map)
+    // Handle tile layer errors
+    tileLayer.on('tileerror', (error) => {
+      console.error('Tile loading error:', error)
+      mapError.value = '地圖圖層載入失敗，請檢查網路連線'
+    })
 
-  // Emit ready event
-  emit('mapReady')
+    tileLayer.addTo(map.value as L.Map)
 
-  console.log('✅ Map initialized')
+    // Store map instance
+    mapStore.setMap(map.value as L.Map)
+
+    // Add map event listeners with debounce
+    let moveTimeout: number | null = null
+    map.value.on('moveend', () => {
+      if (moveTimeout) clearTimeout(moveTimeout)
+      moveTimeout = window.setTimeout(() => {
+        const center = map.value!.getCenter()
+        const zoom = map.value!.getZoom()
+        mapStore.updateMapView([center.lat, center.lng], zoom)
+      }, 300)
+    })
+
+    // Map is ready
+    isMapReady.value = true
+    emit('mapReady')
+
+    console.log('✅ Map initialized')
+  } catch (error) {
+    console.error('Map initialization error:', error)
+    mapError.value = '地圖初始化失敗，請重新整理頁面'
+    isMapReady.value = false
+  }
 }
 
 // Create markers for businesses
@@ -126,6 +155,9 @@ function initializeMarkerCluster() {
     animateAddingMarkers: false,
     disableClusteringAtZoom: 19,
     zoomToBoundsOnClick: true,
+    chunkedLoading: true, // 分塊載入以提升效能
+    chunkInterval: 200, // 載入間隔時間
+    chunkDelay: 50, // 每塊之間的延遲
     iconCreateFunction: (cluster) => {
       const count = cluster.getChildCount()
       let size = 'small'
@@ -151,11 +183,37 @@ function initializeMarkerCluster() {
   map.value.addLayer(markerClusterGroup.value as L.MarkerClusterGroup)
 }
 
-// Handle resize
+// Handle resize with debounce
+let resizeTimeout: number | null = null
 function handleResize() {
-  if (map.value) {
-    map.value.invalidateSize()
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout)
   }
+  
+  resizeTimeout = window.setTimeout(() => {
+    if (map.value) {
+      map.value.invalidateSize()
+      console.log('Map resized')
+    }
+  }, 300)
+}
+
+// Retry map load
+function retryMapLoad() {
+  mapError.value = null
+  isMapReady.value = false
+  
+  // Clean up existing map
+  if (map.value) {
+    map.value.remove()
+    map.value = null
+  }
+  
+  // Retry initialization
+  setTimeout(() => {
+    initializeMap()
+    initializeMarkerCluster()
+  }, 100)
 }
 
 // Lifecycle
@@ -207,6 +265,22 @@ watch(() => props.businesses, (newBusinesses) => {
           </svg>
           <span class="text-gray-700">載入地圖中...</span>
         </div>
+      </div>
+    </div>
+    
+    <!-- Error overlay -->
+    <div v-if="mapError" 
+         class="absolute inset-0 bg-white bg-opacity-95 flex items-center justify-center z-10">
+      <div class="text-center max-w-md px-4">
+        <svg class="mx-auto h-12 w-12 text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">地圖載入錯誤</h3>
+        <p class="text-gray-600 mb-4">{{ mapError }}</p>
+        <button @click="retryMapLoad" 
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          重試載入
+        </button>
       </div>
     </div>
   </div>
