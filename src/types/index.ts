@@ -46,8 +46,17 @@ export interface MapState {
 
 // API 響應類型
 export interface BusinessData {
+  // 支援原始格式和新格式
+  code?: number
+  message?: string
+  status?: string
+  msg?: string
   data: {
-    total: number
+    total?: number       // 原始格式
+    total_count?: number // 新格式
+    page?: number
+    page_size?: number
+    total_page?: number
     info: Business[]
   }
 }

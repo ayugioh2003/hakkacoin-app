@@ -75,11 +75,11 @@ function handleMarkerClick(business: any) {
           <MapContainer 
             v-if="!isLoading && businesses.length > 0"
             :businesses="businesses"
-            height="500px"
+            height="700px"
             @map-ready="handleMapReady"
             @marker-click="handleMarkerClick"
           />
-          <div v-else class="h-[500px] flex items-center justify-center bg-gray-100 rounded">
+          <div v-else class="h-[700px] flex items-center justify-center bg-gray-100 rounded">
             <div class="text-center">
               <svg class="animate-spin h-8 w-8 mx-auto mb-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

@@ -96,7 +96,7 @@ export async function geocodeAddress(address: string): Promise<[number, number] 
  */
 export function createPopupContent(business: Business): string {
   const imageHtml = business.image.length > 0 
-    ? `<img src="${business.image[0]}" alt="${business.name}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 4px 4px 0 0; margin: -12px -12px 8px -12px;" />`
+    ? `<img src="${business.image[0]}" alt="${business.name}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0; display: block;" />`
     : ''
 
   const tagsHtml = business.tag.length > 0
@@ -125,9 +125,9 @@ export function createPopupContent(business: Business): string {
     : ''
 
   return `
-    <div style="min-width: 280px; max-width: 350px;">
+    <div style="min-width: 280px; max-width: 350px; overflow: hidden; border-radius: 8px;">
       ${imageHtml}
-      <div style="padding: 0 12px 12px 12px;">
+      <div style="padding: 12px;">
         <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold; color: #111827;">${business.name}</h3>
         ${tagsHtml}
         <p style="margin: 0 0 12px 0; font-size: 14px; color: #4b5563; line-height: 1.5; max-height: 60px; overflow: hidden;">${business.introduction}</p>

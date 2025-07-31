@@ -288,10 +288,36 @@ watch(() => props.businesses, (newBusinesses) => {
 :deep(.custom-popup .leaflet-popup-content-wrapper) {
   border-radius: 8px;
   padding: 0;
+  overflow: hidden;
 }
 
 :deep(.custom-popup .leaflet-popup-content) {
   margin: 0;
-  min-width: 250px;
+  padding: 0;
+  min-width: 280px;
+  max-width: 350px;
+}
+
+/* Custom close button styles */
+:deep(.custom-popup .leaflet-popup-close-button) {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 24px !important;
+  line-height: 30px !important;
+  color: #fff !important;
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  border-radius: 50% !important;
+  opacity: 1 !important;
+  top: 8px !important;
+  right: 8px !important;
+  font-weight: normal !important;
+  text-align: center !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+:deep(.custom-popup .leaflet-popup-close-button:hover) {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  transform: scale(1.1) !important;
 }
 </style>

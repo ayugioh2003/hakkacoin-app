@@ -44,14 +44,17 @@ export function validateBusinessData(data: unknown): data is BusinessData {
   
   const typedData = data as any
   
-  return (
-    typeof typedData.data === 'object' &&
-    typeof typedData.data.total === 'number' &&
-    Array.isArray(typedData.data.info) &&
-    typedData.data.info.every((item: any) => 
-      typeof item.id === 'number' &&
-      typeof item.name === 'string' &&
-      typeof item.address === 'string'
-    )
+  // 支援兩種格式：
+  // 1. 原始格式：{ data: { total: number, info: [] } }
+  // 2. 新格式：{ code: number, message: string, data: { total_count: number, info: [] } }
+  
+  const hasValidDataStructure = typeof typedData.data === 'object' && Array.isArray(typedData.data.info)
+  const hasValidTotal = typeof typedData.data.total === 'number' || typeof typedData.data.total_count === 'number'
+  const hasValidBusinesses = typedData.data.info.every((item: any) => 
+    typeof item.id === 'number' &&
+    typeof item.name === 'string' &&
+    typeof item.address === 'string'
   )
+  
+  return hasValidDataStructure && hasValidTotal && hasValidBusinesses
 }
