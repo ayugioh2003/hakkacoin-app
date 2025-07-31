@@ -188,7 +188,8 @@ function closeFilterPanel() {
             <p>✅ 地圖互動優化</p>
             <p>✅ 搜尋功能開發</p>
             <p>✅ 搜尋體驗優化</p>
-            <p>✅ 篩選基礎功能 (Day 9)</p>
+            <p>✅ 篩選基礎功能</p>
+            <p>✅ 篩選體驗優化 (Day 10)</p>
           </div>
         </div>
       </div>

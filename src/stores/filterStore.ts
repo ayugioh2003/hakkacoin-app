@@ -1,12 +1,56 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Business, FilterOptions } from '@/types'
 
+// 本地儲存鍵名
+const STORAGE_KEY = 'hakkacoin-filter-state'
+
+// 預設篩選狀態
+interface FilterState {
+  selectedCounties: string[]
+  selectedTags: string[]
+  isHakkaOnly: boolean
+}
+
+// 從 localStorage 載入狀態
+function loadFilterState(): FilterState {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      return {
+        selectedCounties: Array.isArray(parsed.selectedCounties) ? parsed.selectedCounties : [],
+        selectedTags: Array.isArray(parsed.selectedTags) ? parsed.selectedTags : [],
+        isHakkaOnly: Boolean(parsed.isHakkaOnly)
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to load filter state from localStorage:', error)
+  }
+  return {
+    selectedCounties: [],
+    selectedTags: [],
+    isHakkaOnly: false
+  }
+}
+
+// 儲存狀態到 localStorage
+function saveFilterState(state: FilterState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch (error) {
+    console.warn('Failed to save filter state to localStorage:', error)
+  }
+}
+
 export const useFilterStore = defineStore('filter', () => {
+  // 載入儲存的狀態
+  const savedState = loadFilterState()
+  
   // State
-  const selectedCounties = ref<string[]>([])
-  const selectedTags = ref<string[]>([])
-  const isHakkaOnly = ref<boolean>(false)
+  const selectedCounties = ref<string[]>(savedState.selectedCounties)
+  const selectedTags = ref<string[]>(savedState.selectedTags)
+  const isHakkaOnly = ref<boolean>(savedState.isHakkaOnly)
   const isFilterActive = ref<boolean>(false)
 
   // Getters
@@ -148,6 +192,32 @@ export const useFilterStore = defineStore('filter', () => {
     return applyFilters(businesses).length
   }
 
+  // 清除本地儲存
+  function clearStorage() {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch (error) {
+      console.warn('Failed to clear filter state from localStorage:', error)
+    }
+  }
+
+  // 監聽狀態變化並自動儲存
+  watch(
+    [selectedCounties, selectedTags, isHakkaOnly],
+    () => {
+      const currentState: FilterState = {
+        selectedCounties: selectedCounties.value,
+        selectedTags: selectedTags.value,
+        isHakkaOnly: isHakkaOnly.value
+      }
+      saveFilterState(currentState)
+    },
+    { deep: true }
+  )
+
+  // 初始化時更新篩選狀態
+  updateFilterState()
+
   return {
     // State
     selectedCounties,
@@ -173,6 +243,7 @@ export const useFilterStore = defineStore('filter', () => {
     applyFilters,
     getAvailableCounties,
     getAvailableTags,
-    getFilteredCount
+    getFilteredCount,
+    clearStorage
   }
 })
