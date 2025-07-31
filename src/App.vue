@@ -2,11 +2,16 @@
 import { onMounted, watch, ref } from 'vue'
 import { initializeStores } from '@/stores'
 import { useBusinesses } from '@/composables/useBusinesses'
+import { useSearch } from '@/composables/useSearch'
 import MapContainer from '@/components/map/MapContainer.vue'
 import MapControls from '@/components/map/MapControls.vue'
+import SearchBox from '@/components/common/SearchBox.vue'
 
 // 使用商家資料
 const { businesses, isLoading, error, filteredBusinessCount } = useBusinesses()
+
+// 使用搜尋功能
+const { performSearch, clearSearch, selectBusiness, focusOnResults, highlightedBusinessIds } = useSearch()
 
 // 手動追蹤初始化狀態
 const isInitialized = ref(false)
@@ -45,13 +50,37 @@ function handleMapReady() {
 function handleMarkerClick(business: any) {
   console.log('Marker clicked:', business)
 }
+
+// Search event handlers
+function handleSearch(query: string) {
+  focusOnResults()
+}
+
+function handleSelectBusiness(business: any) {
+  selectBusiness(business)
+}
+
+function handleClearSearch() {
+  clearSearch()
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50">
     <header class="bg-white shadow-sm border-b">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <h1 class="text-2xl font-bold text-gray-900">客家小錢地圖</h1>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <h1 class="text-2xl font-bold text-gray-900">客家小錢地圖</h1>
+          <div class="w-full md:w-96">
+            <SearchBox 
+              v-if="!isLoading"
+              placeholder="搜尋商家名稱或地址..."
+              @search="handleSearch"
+              @select="handleSelectBusiness"
+              @clear="handleClearSearch"
+            />
+          </div>
+        </div>
       </div>
     </header>
 
@@ -75,6 +104,7 @@ function handleMarkerClick(business: any) {
           <MapContainer 
             v-if="!isLoading && businesses.length > 0"
             :businesses="businesses"
+            :highlighted-business-ids="highlightedBusinessIds"
             height="700px"
             @map-ready="handleMapReady"
             @marker-click="handleMarkerClick"
@@ -120,7 +150,8 @@ function handleMarkerClick(business: any) {
             <p>✅ 基礎地圖完成</p>
             <p>✅ 商家標記完成</p>
             <p>✅ 地理編碼完成</p>
-            <p>✅ 地圖互動優化 (Day 6)</p>
+            <p>✅ 地圖互動優化</p>
+            <p>🔄 搜尋功能開發 (Day 7)</p>
           </div>
         </div>
       </div>

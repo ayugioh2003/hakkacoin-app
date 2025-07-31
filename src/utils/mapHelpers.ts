@@ -8,16 +8,25 @@ export const DEFAULT_ZOOM = 8
 /**
  * 建立自訂標記圖示
  */
-export function createCustomIcon(color = '#ef4444'): L.DivIcon {
+export function createCustomIcon(color: string): L.DivIcon {
+  // 特殊顏色處理
+  const isHighlight = color === 'highlight'
+  const actualColor = isHighlight ? '#ea580c' : color
+  const borderWidth = isHighlight ? '3px' : '2px'
+  const boxShadow = isHighlight 
+    ? '0 0 0 4px rgba(234, 88, 12, 0.3), 0 2px 4px rgba(0,0,0,0.3)' 
+    : '0 2px 4px rgba(0,0,0,0.3)'
+  const animationClass = isHighlight ? 'highlight-marker' : ''
+  
   return L.divIcon({
     html: `
-      <div style="
-        background-color: ${color};
+      <div class="${animationClass}" style="
+        background-color: ${actualColor};
         width: 24px;
         height: 24px;
         border-radius: 50% 50% 50% 0;
-        border: 2px solid white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        border: ${borderWidth} solid white;
+        box-shadow: ${boxShadow};
         transform: rotate(-45deg);
         display: flex;
         align-items: center;

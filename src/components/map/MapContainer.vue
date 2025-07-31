@@ -13,11 +13,13 @@ import type { Business } from '@/types'
 interface Props {
   businesses?: Business[]
   height?: string
+  highlightedBusinessIds?: Set<string>
 }
 
 const props = withDefaults(defineProps<Props>(), {
   businesses: () => [],
-  height: '600px'
+  height: '600px',
+  highlightedBusinessIds: () => new Set<string>()
 })
 
 // Emits
@@ -35,6 +37,7 @@ const map = ref<L.Map | null>(null)
 const markerClusterGroup = ref<L.MarkerClusterGroup | null>(null)
 const mapError = ref<string | null>(null)
 const isMapReady = ref(false)
+const markersMap = ref<Map<string, L.Marker>>(new Map())
 
 // Initialize map
 function initializeMap() {
@@ -104,6 +107,7 @@ function createMarkers(businesses: Business[]) {
 
   // Clear existing markers
   markerClusterGroup.value.clearLayers()
+  markersMap.value.clear()
 
   let markersAdded = 0
   let skippedNoCoordinates = 0
@@ -116,10 +120,14 @@ function createMarkers(businesses: Business[]) {
       return
     }
 
-    const color = getMarkerColorByTag(business.tag)
+    const isHighlighted = props.highlightedBusinessIds.has(business.id)
+    const color = isHighlighted ? 'highlight' : getMarkerColorByTag(business.tag)
     const icon = createCustomIcon(color)
     
-    const marker = L.marker(business.coordinates, { icon })
+    const marker = L.marker(business.coordinates, { 
+      icon,
+      zIndexOffset: isHighlighted ? 1000 : 0 // 高亮的標記顯示在最上層
+    })
     
     // Create popup content
     const popupContent = createPopupContent(business)
@@ -136,6 +144,10 @@ function createMarkers(businesses: Business[]) {
     
     // Add to cluster group
     markerClusterGroup.value!.addLayer(marker)
+    
+    // Store marker reference
+    markersMap.value.set(business.id, marker)
+    
     markersAdded++
   })
 
@@ -248,6 +260,60 @@ watch(() => props.businesses, (newBusinesses) => {
     createMarkers(newBusinesses)
   }
 }, { immediate: true, deep: true })
+
+// Watch for highlighted businesses changes
+watch(() => props.highlightedBusinessIds, (newHighlights) => {
+  if (!markerClusterGroup.value) return
+  
+  // Update marker icons without recreating all markers
+  markersMap.value.forEach((marker, businessId) => {
+    const business = props.businesses.find(b => b.id === businessId)
+    if (business) {
+      const isHighlighted = newHighlights.has(businessId)
+      const color = isHighlighted ? 'highlight' : getMarkerColorByTag(business.tag)
+      const icon = createCustomIcon(color)
+      marker.setIcon(icon)
+      marker.setZIndexOffset(isHighlighted ? 1000 : 0)
+    }
+  })
+}, { deep: true })
+
+// Watch for selected business from search
+watch(() => mapStore.selectedBusiness, (business) => {
+  if (business && business.coordinates && map.value && markerClusterGroup.value) {
+    const marker = markersMap.value.get(business.id)
+    if (marker) {
+      // First, we need to ensure the marker is visible (not in a cluster)
+      // Zoom in enough to show individual markers
+      map.value.setView(business.coordinates, 18, {
+        animate: true,
+        duration: 0.5
+      })
+      
+      // Wait for zoom animation to complete and clusters to update
+      setTimeout(() => {
+        // Check if marker is still clustered
+        const parent = markerClusterGroup.value!.getVisibleParent(marker)
+        
+        if (parent === marker) {
+          // Marker is visible, open popup
+          marker.openPopup()
+        } else {
+          // Marker is still in a cluster, zoom in more
+          map.value!.setView(business.coordinates, 19, {
+            animate: true,
+            duration: 0.3
+          })
+          
+          // Try again after zoom
+          setTimeout(() => {
+            marker.openPopup()
+          }, 400)
+        }
+      }, 600)
+    }
+  }
+})
 </script>
 
 <template>
@@ -393,5 +459,19 @@ watch(() => props.businesses, (newBusinesses) => {
 :deep(.custom-popup .leaflet-popup-close-button:hover) {
   background-color: rgba(0, 0, 0, 0.9) !important;
   transform: scale(1.1) !important;
+}
+
+/* Highlight marker animation */
+:deep(.highlight-marker) {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .7;
+  }
 }
 </style>

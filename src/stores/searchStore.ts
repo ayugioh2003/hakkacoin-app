@@ -32,10 +32,16 @@ export const useSearchStore = defineStore('search', () => {
     searchEngine.value = createSearchEngine(businesses)
   }
 
-  function search(searchQuery?: string) {
-    const finalQuery = searchQuery ?? query.value
+  function performSearch(searchQuery: string, businesses: Business[]) {
+    // Initialize search engine if not ready
+    if (!searchEngine.value && businesses.length > 0) {
+      initializeSearchEngine(businesses)
+    }
     
-    if (!finalQuery.trim() || !searchEngine.value) {
+    const finalQuery = searchQuery.trim()
+    query.value = finalQuery
+    
+    if (!finalQuery || !searchEngine.value) {
       clearResults()
       return
     }
@@ -43,7 +49,7 @@ export const useSearchStore = defineStore('search', () => {
     isSearching.value = true
     
     try {
-      const results = performSearch(searchEngine.value, finalQuery)
+      const results = searchEngine.value.search(finalQuery)
       searchResults.value = results
       
       // Add to history if not already present
@@ -59,6 +65,15 @@ export const useSearchStore = defineStore('search', () => {
     } finally {
       isSearching.value = false
     }
+  }
+
+  function search(searchQuery?: string) {
+    const finalQuery = searchQuery ?? query.value
+    performSearch(finalQuery, [])
+  }
+
+  function selectBusiness(business: Business) {
+    // This will be used to highlight the selected business on the map
   }
 
   function updateQuery(newQuery: string, businesses: Business[]) {
@@ -117,6 +132,7 @@ export const useSearchStore = defineStore('search', () => {
     isSearching,
     showSuggestions,
     suggestions,
+    searchEngine,
     
     // Getters
     hasResults,
@@ -126,7 +142,9 @@ export const useSearchStore = defineStore('search', () => {
     
     // Actions
     initializeSearchEngine,
+    performSearch,
     search,
+    selectBusiness,
     updateQuery,
     clearSearch,
     clearResults,
