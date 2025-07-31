@@ -102,7 +102,10 @@ docs/                    # 專案文件
 - Pinia stores 架構（mapStore, searchStore, filterStore）
 - 商家資料載入機制
 - 資料解析與處理工具
-- 基礎 composables（useBusinesses）
+- 基礎 composables（useBusinesses, useMap）
+- 地圖顯示功能（MapContainer 元件）
+- 地圖控制元件（MapControls）
+- Leaflet.js 整合與 OpenStreetMap 瓦片圖層
 
 ## 效能考量
 

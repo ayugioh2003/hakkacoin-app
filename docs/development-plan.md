@@ -65,13 +65,13 @@
 **目標**: 實作基本地圖顯示功能
 
 **具體任務**:
-- [ ] 建立 MapContainer.vue 元件
-- [ ] 整合 Leaflet.js 地圖
-- [ ] 設定 OpenStreetMap 瓦片圖層
-- [ ] 實作地圖初始化邏輯
-- [ ] 設定預設地圖中心點（台灣）
-- [ ] 實作 useMap composable
-- [ ] 加入基本地圖控制項
+- [x] 建立 MapContainer.vue 元件
+- [x] 整合 Leaflet.js 地圖
+- [x] 設定 OpenStreetMap 瓦片圖層
+- [x] 實作地圖初始化邏輯
+- [x] 設定預設地圖中心點（台灣）
+- [x] 實作 useMap composable
+- [x] 加入基本地圖控制項
 
 **產出物**:
 - 可顯示台灣地圖的基礎元件
