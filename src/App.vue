@@ -151,7 +151,8 @@ function handleClearSearch() {
             <p>✅ 商家標記完成</p>
             <p>✅ 地理編碼完成</p>
             <p>✅ 地圖互動優化</p>
-            <p>🔄 搜尋功能開發 (Day 7)</p>
+            <p>✅ 搜尋功能開發</p>
+            <p>✅ 搜尋體驗優化 (Day 8)</p>
           </div>
         </div>
       </div>

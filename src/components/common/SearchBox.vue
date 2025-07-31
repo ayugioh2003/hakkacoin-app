@@ -36,6 +36,18 @@ const showResults = computed(() => {
   return isFocused.value && searchInput.value.length > 0 && searchResults.value.length > 0
 })
 
+const showSuggestions = computed(() => {
+  return isFocused.value && searchInput.value.length > 1 && searchStore.showSuggestions && searchStore.suggestions.length > 0
+})
+
+const showHistory = computed(() => {
+  return isFocused.value && searchInput.value.length === 0 && searchStore.recentSearches.length > 0
+})
+
+const showDropdown = computed(() => {
+  return showResults.value || showSuggestions.value || showHistory.value
+})
+
 const searchResults = computed(() => {
   if (!searchInput.value.trim()) return []
   return searchStore.searchResults
@@ -62,6 +74,22 @@ function selectBusiness(business: Business) {
   searchStore.selectBusiness(business)
   emit('select', business)
   isFocused.value = false
+}
+
+function selectSuggestion(suggestion: string) {
+  searchInput.value = suggestion
+  searchStore.selectSuggestion(suggestion)
+  handleSearch()
+}
+
+function selectFromHistory(historyItem: string) {
+  searchInput.value = historyItem
+  handleSearch()
+}
+
+function removeFromHistory(historyItem: string, event: Event) {
+  event.stopPropagation()
+  searchStore.removeFromHistory(historyItem)
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -97,6 +125,9 @@ watch(searchInput, (newValue) => {
   if (searchTimeout) {
     clearTimeout(searchTimeout)
   }
+  
+  // Update query and generate suggestions immediately
+  searchStore.updateQuery(newValue, businesses.value)
   
   // Debounce search
   searchTimeout = window.setTimeout(() => {
@@ -156,14 +187,71 @@ onMounted(() => {
       </button>
     </div>
     
-    <!-- Search Results Dropdown -->
+    <!-- Search Results and Suggestions Dropdown -->
     <div
-      v-if="showResults"
+      v-if="showDropdown"
       class="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 
              max-h-96 overflow-y-auto"
       role="listbox"
     >
       <div class="py-1">
+        <!-- Search History -->
+        <div v-if="showHistory" class="border-b border-gray-100">
+          <div class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center justify-between">
+            <span>最近搜尋</span>
+            <button 
+              @click="searchStore.clearHistory()"
+              class="text-gray-400 hover:text-gray-600 text-xs"
+              title="清除歷史"
+            >
+              清除
+            </button>
+          </div>
+          <div
+            v-for="historyItem in searchStore.recentSearches"
+            :key="historyItem"
+            @click="selectFromHistory(historyItem)"
+            class="px-4 py-2 hover:bg-gray-50 cursor-pointer text-gray-700 flex items-center justify-between group"
+          >
+            <div class="flex items-center flex-1">
+              <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="flex-1">{{ historyItem }}</span>
+            </div>
+            <button
+              @click="removeFromHistory(historyItem, $event)"
+              class="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded"
+              title="移除"
+            >
+              <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Suggestions -->
+        <div v-if="showSuggestions && !showResults" class="border-b border-gray-100">
+          <div class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
+            搜尋建議
+          </div>
+          <div
+            v-for="suggestion in searchStore.suggestions"
+            :key="suggestion"
+            @click="selectSuggestion(suggestion)"
+            class="px-4 py-2 hover:bg-gray-50 cursor-pointer text-gray-700"
+          >
+            <div class="flex items-center">
+              <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              {{ suggestion }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Results -->
         <div
           v-for="(result, index) in searchResults"
           :key="result.item.id"
@@ -205,7 +293,7 @@ onMounted(() => {
         </div>
       </div>
       
-      <div v-if="searchResults.length === 0" class="px-4 py-3 text-sm text-gray-500">
+      <div v-if="searchResults.length === 0 && !showSuggestions && searchInput.length > 0" class="px-4 py-3 text-sm text-gray-500">
         找不到符合的商家
       </div>
     </div>

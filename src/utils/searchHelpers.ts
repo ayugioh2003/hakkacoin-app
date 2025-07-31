@@ -5,8 +5,13 @@ import type { Business, SearchOptions, SearchResult } from '@/types'
  * 預設搜尋選項
  */
 export const DEFAULT_SEARCH_OPTIONS: SearchOptions = {
-  keys: ['name', 'address', 'introduction', 'tag'],
-  threshold: 0.3, // 模糊匹配閾值，0 表示完全匹配，1 表示完全不匹配
+  keys: [
+    { name: 'name', weight: 0.4 },      // 商家名稱權重最高
+    { name: 'address', weight: 0.3 },   // 地址權重次之
+    { name: 'tag', weight: 0.2 },       // 標籤權重適中
+    { name: 'introduction', weight: 0.1 } // 介紹權重最低
+  ],
+  threshold: 0.4, // 稍微寬鬆的匹配閾值
   includeScore: true,
 }
 
@@ -24,6 +29,8 @@ export function createSearchEngine(businesses: Business[], options: Partial<Sear
     ignoreLocation: true, // 忽略字串位置，提升搜尋品質
     findAllMatches: true, // 尋找所有匹配項
     minMatchCharLength: 1, // 最小匹配字元長度
+    shouldSort: true, // 根據相關性排序
+    fieldNormWeight: 1, // 欄位長度正規化權重
   })
 }
 
@@ -103,26 +110,43 @@ export function highlightSearchTerm(text: string, searchTerm: string): string {
 export function createSearchSuggestions(businesses: Business[], query: string, limit = 5): string[] {
   if (!query.trim() || query.length < 2) return []
   
-  const suggestions = new Set<string>()
+  const lowerQuery = query.toLowerCase()
+  const suggestions = new Map<string, number>() // 建議項目和其權重
   
-  // 從商家名稱中提取建議
   businesses.forEach(business => {
-    if (business.name.toLowerCase().includes(query.toLowerCase())) {
-      suggestions.add(business.name)
+    // 商家名稱建議（權重最高）
+    if (business.name.toLowerCase().includes(lowerQuery)) {
+      const weight = business.name.toLowerCase().startsWith(lowerQuery) ? 10 : 5
+      suggestions.set(business.name, (suggestions.get(business.name) || 0) + weight)
     }
     
-    // 從縣市中提取建議
-    if (business.county && business.county.toLowerCase().includes(query.toLowerCase())) {
-      suggestions.add(business.county)
+    // 縣市建議
+    if (business.county && business.county.toLowerCase().includes(lowerQuery)) {
+      const weight = business.county.toLowerCase().startsWith(lowerQuery) ? 8 : 4
+      suggestions.set(business.county, (suggestions.get(business.county) || 0) + weight)
     }
     
-    // 從標籤中提取建議
+    // 標籤建議
     business.tag.forEach(tag => {
-      if (tag.toLowerCase().includes(query.toLowerCase())) {
-        suggestions.add(tag)
+      if (tag.toLowerCase().includes(lowerQuery)) {
+        const weight = tag.toLowerCase().startsWith(lowerQuery) ? 6 : 3
+        suggestions.set(tag, (suggestions.get(tag) || 0) + weight)
+      }
+    })
+    
+    // 地址關鍵字建議（從地址中提取有意義的詞彙）
+    const addressParts = business.address.split(/[縣市鄉鎮區里路街段巷弄號]/);
+    addressParts.forEach(part => {
+      const trimmed = part.trim()
+      if (trimmed.length > 1 && trimmed.toLowerCase().includes(lowerQuery)) {
+        suggestions.set(trimmed, (suggestions.get(trimmed) || 0) + 2)
       }
     })
   })
   
-  return Array.from(suggestions).slice(0, limit)
+  // 根據權重排序並返回
+  return Array.from(suggestions.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([suggestion]) => suggestion)
 }
