@@ -14,14 +14,14 @@
 **目標**: 完成開發環境配置與核心依賴安裝
 
 **具體任務**:
-- [ ] 安裝並配置 TypeScript
-- [ ] 安裝並配置 Pinia 狀態管理
-- [ ] 安裝 Leaflet.js 及其類型定義
-- [ ] 安裝 Fuse.js 搜尋引擎
-- [ ] 安裝 Tailwind CSS（可選）
-- [ ] 設定 ESLint 和 Prettier
-- [ ] 建立基本的專案目錄結構
-- [ ] 配置 Vite 建置設定
+- [x] 安裝並配置 TypeScript
+- [x] 安裝並配置 Pinia 狀態管理
+- [x] 安裝 Leaflet.js 及其類型定義
+- [x] 安裝 Fuse.js 搜尋引擎
+- [x] 安裝 Tailwind CSS（可選）
+- [x] 設定 ESLint 和 Prettier
+- [x] 建立基本的專案目錄結構
+- [x] 配置 Vite 建置設定
 
 **產出物**:
 - 完整的開發環境
@@ -30,7 +30,7 @@
 - 建置配置檔案
 
 **驗收標準**:
-- [x] `npm run dev` 可正常啟動開發伺服器
+- [x] `pnpm run dev` 可正常啟動開發伺服器
 - [x] TypeScript 編譯無錯誤
 - [x] ESLint 檢查通過
 

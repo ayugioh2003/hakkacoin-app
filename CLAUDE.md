@@ -11,8 +11,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **啟動開發伺服器**: `pnpm dev` (使用 Vite 開發伺服器和熱重載)
 - **建置生產版本**: `pnpm build` 
 - **預覽生產版本**: `pnpm preview`
-- **程式碼檢查**: `pnpm lint` (需安裝 ESLint)
-- **類型檢查**: `pnpm type-check` (需安裝 TypeScript)
+- **程式碼檢查**: `pnpm lint`
+- **類型檢查**: `pnpm type-check`
+- **格式化程式碼**: `pnpm format`
 
 專案使用 pnpm 作為套件管理器 (版本 9.5.0+)。
 
