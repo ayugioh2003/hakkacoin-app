@@ -4,6 +4,7 @@ import type { Map } from 'leaflet'
 import type { Business, BusinessData, MapState } from '@/types'
 import { parseBusinessData, validateBusinessData } from '@/utils/dataParser'
 import { TAIWAN_CENTER, DEFAULT_ZOOM } from '@/utils/mapHelpers'
+import businessDataWithCoords from '@/assets/hakkacoin-maps-with-coordinates.json'
 
 export const useMapStore = defineStore('map', () => {
   // State
@@ -28,23 +29,13 @@ export const useMapStore = defineStore('map', () => {
     error.value = null
     
     try {
-      // 優先載入有座標的整合檔案，如果不存在則使用原始檔案
-      let response = await fetch('/src/assets/hakkacoin-maps-with-coordinates.json')
-      if (!response.ok) {
-        console.log('整合檔案不存在，使用原始檔案')
-        response = await fetch('/src/assets/hakkacoin-maps.json')
-      }
-      if (!response.ok) {
-        throw new Error(`Failed to load data: ${response.statusText}`)
-      }
-      
-      const data = await response.json()
-      
+      const data = businessDataWithCoords
+
       if (!validateBusinessData(data)) {
         throw new Error('Invalid business data format')
       }
-      
-      businesses.value = parseBusinessData(data as BusinessData)
+
+      businesses.value = parseBusinessData(data as unknown as BusinessData)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Unknown error occurred'
       console.error('Error loading business data:', err)
