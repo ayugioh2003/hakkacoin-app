@@ -7,6 +7,9 @@ import { resolve } from 'path'
 export default defineConfig({
   base: '/hakkacoin-app/',
   plugins: [vue(), tailwindcss()],
+  server: {
+    allowedHosts: ['.trycloudflare.com']
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')

@@ -151,7 +151,7 @@ export const useFilterStore = defineStore('filter', () => {
 
       // 標籤篩選
       if (selectedTags.value.length > 0) {
-        const hasMatchingTag = business.tag.some(tag => selectedTags.value.includes(tag))
+        const hasMatchingTag = business.tag.some(tag => selectedTags.value.includes(String(tag).trim()))
         if (!hasMatchingTag) {
           return false
         }
@@ -180,8 +180,9 @@ export const useFilterStore = defineStore('filter', () => {
     const tags = new Set<string>()
     businesses.forEach(business => {
       business.tag.forEach(tag => {
-        if (tag.trim()) {
-          tags.add(tag)
+        const tagStr = String(tag).trim()
+        if (tagStr) {
+          tags.add(tagStr)
         }
       })
     })

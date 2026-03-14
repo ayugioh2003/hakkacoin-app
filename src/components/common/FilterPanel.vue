@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useFilter } from '@/composables/useFilter'
-import TransitionWrapper from './TransitionWrapper.vue'
 import { useTouchEnhancement } from '@/composables/useTouchEnhancement'
 
 // Props
@@ -126,19 +125,19 @@ onMounted(() => {
 <template>
   <div>
     <!-- Mobile backdrop overlay -->
-    <TransitionWrapper name="fade" :appear="false">
-      <div 
+    <Transition name="backdrop">
+      <div
         v-if="isOpen"
-        class="fixed inset-0 bg-black bg-opacity-50 md:hidden z-[99998]"
-        @click="handleClose"
+        class="fixed inset-0 bg-black/50 md:hidden z-[99998]"
+        @click.self="handleClose"
       ></div>
-    </TransitionWrapper>
-    
+    </Transition>
+
     <!-- Fixed positioned panel that slides from right -->
-    <TransitionWrapper name="slide" :appear="false">
-      <div 
+    <Transition name="panel-slide">
+      <div
         v-if="isOpen"
-        class="filter-panel fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-[99999]"
+        class="filter-panel fixed right-0 top-0 h-full w-80 max-w-[85vw] sm:w-96 md:max-w-md bg-white shadow-xl z-[99999]"
       >
       <div class="flex h-full flex-col">
         <!-- Header -->
@@ -342,7 +341,7 @@ onMounted(() => {
         </div>
       </div>
       </div>
-    </TransitionWrapper>
+    </Transition>
   </div>
 </template>
 
@@ -409,5 +408,32 @@ onMounted(() => {
 
 .micro-bounce:active {
   transform: scale(0.95);
+}
+</style>
+
+<style>
+/* Backdrop fade transition (must NOT be scoped so Transition classes apply) */
+.backdrop-enter-active,
+.backdrop-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.backdrop-enter-from,
+.backdrop-leave-to {
+  opacity: 0;
+}
+
+/* Panel slide-in transition */
+.panel-slide-enter-active {
+  transition: transform 0.3s ease-out;
+}
+
+.panel-slide-leave-active {
+  transition: transform 0.25s ease-in;
+}
+
+.panel-slide-enter-from,
+.panel-slide-leave-to {
+  transform: translateX(100%);
 }
 </style>

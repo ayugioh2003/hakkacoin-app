@@ -98,7 +98,7 @@ export function useFilter() {
   }
 
   function getTagCount(tag: string): number {
-    return businesses.value.filter(business => business.tag.includes(tag)).length
+    return businesses.value.filter(business => business.tag.some(t => String(t).trim() === tag)).length
   }
 
   function getHakkaCount(): number {

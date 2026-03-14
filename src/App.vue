@@ -5,7 +5,6 @@ import { useBusinesses } from '@/composables/useBusinesses'
 import { useSearch } from '@/composables/useSearch'
 import { useFilter } from '@/composables/useFilter'
 import MapContainer from '@/components/map/MapContainer.vue'
-import MapControls from '@/components/map/MapControls.vue'
 import FilterPanel from '@/components/common/FilterPanel.vue'
 import Header from '@/components/layout/Header.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
@@ -151,71 +150,19 @@ function closeFilterPanel() {
             id="map"
             :businesses="filteredBusinesses"
             :highlighted-business-ids="highlightedBusinessIds"
-            height="700px"
             @map-ready="handleMapReady"
             @marker-click="handleMarkerClick"
           />
-          <div v-else class="h-[700px] flex items-center justify-center bg-gray-100 rounded">
+          <div v-else class="map-height flex items-center justify-center bg-gray-100 rounded">
             <LoadingSpinner 
               size="lg"
               text="載入商家資料中..."
             />
           </div>
-          <MapControls 
-            v-if="!isLoading && businesses.length > 0" 
-            :is-filter-panel-open="isFilterPanelOpen"
-          />
         </div>
         </div>
       </TransitionWrapper>
 
-      <!-- Info Section -->
-      <TransitionWrapper name="fade" :appear="true" :duration="{ enter: 600, leave: 300 }">
-        <div class="layout-grid grid-cols-1 md:grid-cols-3">
-        <div class="card">
-          <div class="card-body">
-            <h3 class="text-base md:text-lg font-medium text-gray-900 mb-2">地圖功能</h3>
-            <ul class="text-responsive text-gray-600 space-y-1">
-              <li>• 滑鼠滾輪或雙擊縮放</li>
-              <li>• 拖曳移動地圖</li>
-              <li>• 點擊標記查看詳情</li>
-            </ul>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-body">
-            <h3 class="text-base md:text-lg font-medium text-gray-900 mb-2">資料狀態</h3>
-            <div class="text-responsive text-gray-600 space-mobile">
-              <p>載入狀態：{{ isLoading ? '載入中...' : '已完成' }}</p>
-              <p>商家總數：{{ businesses.length }}</p>
-              <p>顯示數量：{{ filteredBusinessCount }}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-body">
-            <h3 class="text-base md:text-lg font-medium text-gray-900 mb-2">開發進度</h3>
-            <div class="text-responsive text-gray-600 space-mobile">
-              <p>✅ 環境建置完成</p>
-              <p>✅ 資料模型完成</p>
-              <p>✅ 基礎地圖完成</p>
-              <p>✅ 商家標記完成</p>
-              <p>✅ 地理編碼完成</p>
-              <p>✅ 地圖互動優化</p>
-              <p>✅ 搜尋功能開發</p>
-              <p>✅ 搜尋體驗優化</p>
-              <p>✅ 篩選基礎功能</p>
-              <p>✅ 篩選體驗優化 (Day 10)</p>
-              <p>✅ 介面設計與佈局 (Day 11)</p>
-              <p>✅ 互動體驗優化 (Day 12)</p>
-              <p>⏳ 測試與部署準備 (Day 13)</p>
-            </div>
-          </div>
-        </div>
-        </div>
-      </TransitionWrapper>
     </main>
 
     <!-- Filter Panel -->

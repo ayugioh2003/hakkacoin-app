@@ -170,6 +170,17 @@
     }
   }
   
+  /* Map height - responsive */
+  .map-height {
+    height: 65vh;
+  }
+
+  @media (min-width: 768px) {
+    .map-height {
+      height: 700px;
+    }
+  }
+
   /* Text utilities */
   .text-responsive {
     font-size: 0.875rem;

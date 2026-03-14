@@ -61,8 +61,11 @@ export function useBusinesses() {
     const tagMap = new Map<string, number>()
     
     filteredBusinesses.value.forEach(business => {
-      business.tag.forEach(tag => {
-        tagMap.set(tag, (tagMap.get(tag) || 0) + 1)
+      business.tag.forEach(rawTag => {
+        const tag = String(rawTag).trim()
+        if (tag) {
+          tagMap.set(tag, (tagMap.get(tag) || 0) + 1)
+        }
       })
     })
 

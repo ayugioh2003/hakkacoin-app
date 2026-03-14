@@ -317,7 +317,7 @@ watch(() => mapStore.selectedBusiness, (business) => {
 </script>
 
 <template>
-  <div class="map-container relative w-full" :style="{ height }">
+  <div class="map-container relative w-full map-height">
     <div ref="mapContainer" class="absolute inset-0 z-0"></div>
     
     <!-- Loading overlay -->

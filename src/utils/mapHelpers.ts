@@ -1,5 +1,6 @@
 import type { Business } from '@/types'
 import L from 'leaflet'
+import { resolveTagLabel } from '@/utils/dataParser'
 
 // 台灣的預設地圖中心點
 export const TAIWAN_CENTER: [number, number] = [23.8, 120.9]
@@ -60,12 +61,13 @@ export function getMarkerColorByTag(tags: string[]): string {
     其他: '#6b7280', // 灰色
   }
 
-  for (const tag of tags) {
+  for (const rawTag of tags) {
+    const tag = resolveTagLabel(rawTag as any)
     if (colorMap[tag]) {
       return colorMap[tag]
     }
   }
-  
+
   return colorMap['其他']
 }
 
@@ -110,10 +112,11 @@ export function createPopupContent(business: Business): string {
 
   const tagsHtml = business.tag.length > 0
     ? `<div style="margin: 8px 0;">
-         ${business.tag.map(tag => {
+         ${business.tag.map(rawTag => {
+           const tag = resolveTagLabel(rawTag as any)
            let bgColor = '#e5e7eb'
            let textColor = '#374151'
-           
+
            if (tag === '食') {
              bgColor = '#fee2e2'
              textColor = '#991b1b'
@@ -127,7 +130,7 @@ export function createPopupContent(business: Business): string {
              bgColor = '#fef3c7'
              textColor = '#92400e'
            }
-           
+
            return `<span style="background: ${bgColor}; color: ${textColor}; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-right: 4px; font-weight: 500;">${tag}</span>`
          }).join('')}
        </div>`

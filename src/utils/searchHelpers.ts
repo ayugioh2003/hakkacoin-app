@@ -127,8 +127,9 @@ export function createSearchSuggestions(businesses: Business[], query: string, l
     }
     
     // 標籤建議
-    business.tag.forEach(tag => {
-      if (tag.toLowerCase().includes(lowerQuery)) {
+    business.tag.forEach(rawTag => {
+      const tag = String(rawTag).trim()
+      if (tag && tag.toLowerCase().includes(lowerQuery)) {
         const weight = tag.toLowerCase().startsWith(lowerQuery) ? 6 : 3
         suggestions.set(tag, (suggestions.get(tag) || 0) + weight)
       }
