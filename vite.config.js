@@ -5,6 +5,7 @@ import { resolve } from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/hakkacoin-app/',
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
