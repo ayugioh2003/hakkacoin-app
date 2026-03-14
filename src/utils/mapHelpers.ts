@@ -137,7 +137,7 @@ export function createPopupContent(business: Business): string {
     : ''
 
   return `
-    <div style="min-width: 280px; max-width: 350px; overflow: hidden; border-radius: 8px;">
+    <div style="max-width: min(350px, calc(100vw - 80px)); border-radius: 8px;">
       ${imageHtml}
       <div style="padding: 12px;">
         <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold; color: #111827;">${business.name}</h3>

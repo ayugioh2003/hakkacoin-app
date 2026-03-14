@@ -133,13 +133,19 @@ function createMarkers(businesses: Business[]) {
     const popupContent = createPopupContent(business)
     marker.bindPopup(popupContent, {
       maxWidth: 350,
-      className: 'custom-popup'
+      className: 'custom-popup',
+      autoPan: true,
+      autoPanPadding: L.point(20, 20)
     })
     
     // Handle marker click
     marker.on('click', () => {
       mapStore.setSelectedBusiness(business)
       emit('markerClick', business)
+      // On mobile, close the Leaflet popup — the bottom sheet handles it
+      if (window.innerWidth < 768) {
+        marker.closePopup()
+      }
     })
     
     // Add to cluster group
@@ -355,8 +361,13 @@ watch(() => mapStore.selectedBusiness, (business) => {
 <style scoped>
 .map-container {
   border-radius: 0.5rem;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+:deep(.leaflet-container) {
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
 /* Fix Leaflet icon paths */
@@ -434,8 +445,7 @@ watch(() => mapStore.selectedBusiness, (business) => {
 :deep(.custom-popup .leaflet-popup-content) {
   margin: 0;
   padding: 0;
-  min-width: 280px;
-  max-width: 350px;
+  max-width: min(350px, calc(100vw - 80px));
 }
 
 /* Custom close button styles */
