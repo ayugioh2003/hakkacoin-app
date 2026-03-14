@@ -66,8 +66,21 @@ function truncateText(text: string, maxLen: number): string {
   return text.length > maxLen ? text.slice(0, maxLen) + '...' : text
 }
 
-function openGoogleMaps(address: string) {
-  window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank')
+function openGoogleMaps(business: Business) {
+  let url: string
+  if (business.map_url) {
+    // 優先使用 API 提供的 Google Maps 連結（最精確）
+    url = business.map_url
+  } else if (business.coordinates) {
+    // 其次使用座標定位
+    const [lat, lng] = business.coordinates
+    url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+  } else {
+    // 最後用店名+地址搜尋
+    const query = `${business.name} ${business.address}`
+    url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+  }
+  window.open(url, '_blank')
 }
 
 // 初始化 stores
@@ -278,7 +291,7 @@ function closeFilterPanel() {
             <!-- Google Maps button -->
             <button
               v-if="selectedBusiness.address"
-              @click="openGoogleMaps(selectedBusiness.address)"
+              @click="openGoogleMaps(selectedBusiness)"
               class="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
