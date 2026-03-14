@@ -7,6 +7,28 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet.markercluster'
 import { useMapStore } from '@/stores/mapStore'
 import { TAIWAN_CENTER, DEFAULT_ZOOM, createCustomIcon, getMarkerColorByTag, createPopupContent } from '@/utils/mapHelpers'
+
+// GPS 定位
+function handleLocate() {
+  if (map.value && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords
+        map.value!.setView([latitude, longitude], 15)
+      },
+      (error) => {
+        console.error('Geolocation error:', error)
+        alert('無法取得您的位置，請確認已開啟定位權限')
+      }
+    )
+  }
+}
+
+function handleReset() {
+  if (map.value) {
+    map.value.setView(TAIWAN_CENTER, DEFAULT_ZOOM)
+  }
+}
 import type { Business } from '@/types'
 
 // Props
@@ -326,6 +348,34 @@ watch(() => mapStore.selectedBusiness, (business) => {
   <div class="map-container relative w-full map-height">
     <div ref="mapContainer" class="absolute inset-0 z-0"></div>
     
+    <!-- Map utility buttons (reset + GPS) -->
+    <div class="absolute top-4 right-4 z-[500] flex flex-col gap-2">
+      <button
+        @click="handleReset"
+        class="bg-white rounded-lg shadow-md w-9 h-9 flex items-center justify-center hover:bg-gray-50 transition-colors"
+        title="重置地圖視角"
+        aria-label="重置地圖視角"
+      >
+        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </button>
+      <button
+        @click="handleLocate"
+        class="bg-white rounded-lg shadow-md w-9 h-9 flex items-center justify-center hover:bg-gray-50 transition-colors"
+        title="定位到我的位置"
+        aria-label="定位到我的位置"
+      >
+        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+    </div>
+
     <!-- Loading overlay -->
     <div v-if="mapStore.isLoading" 
          class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
