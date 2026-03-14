@@ -152,22 +152,22 @@ function createMarkers(businesses: Business[]) {
     })
     
     // Create popup content
-    const popupContent = createPopupContent(business)
-    marker.bindPopup(popupContent, {
-      maxWidth: 350,
-      className: 'custom-popup',
-      autoPan: true,
-      autoPanPadding: L.point(20, 20)
-    })
-    
+    // 桌面版使用 Leaflet popup，手機版使用 bottom sheet
+    const isMobile = window.innerWidth < 768
+    if (!isMobile) {
+      const popupContent = createPopupContent(business)
+      marker.bindPopup(popupContent, {
+        maxWidth: 350,
+        className: 'custom-popup',
+        autoPan: true,
+        autoPanPadding: L.point(20, 20)
+      })
+    }
+
     // Handle marker click
     marker.on('click', () => {
       mapStore.setSelectedBusiness(business)
       emit('markerClick', business)
-      // On mobile, close the Leaflet popup — the bottom sheet handles it
-      if (window.innerWidth < 768) {
-        marker.closePopup()
-      }
     })
     
     // Add to cluster group
